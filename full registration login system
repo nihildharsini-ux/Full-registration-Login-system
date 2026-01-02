@@ -1,0 +1,119 @@
+#servlet code
+package com.username;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Scanner;
+
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+@WebServlet("/userservlet")
+
+public class UserServlet extends HttpServlet{
+	Connection con;
+	public void init() {
+		try {
+			Class.forName("com.mysql.cj.jdbc.Driver");
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		try {
+			Connection con=DriverManager.getConnection("jdbc:mysql://localhost:3306/servletdb","root","nihil0909");
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();  
+		}
+	}
+		public void service(HttpServletRequest req,HttpServletResponse res)
+		throws IOException{
+		PrintWriter out=res.getWriter();
+		
+		String action=req.getParameter("action");
+		String user=req.getParameter("user");
+		String pass=req.getParameter("pass");
+try {
+	if("register".equals(action)) {
+		PreparedStatement ps=con.prepareStatement("insert into users(username,password) values(?,?)");
+		ps.setString(1, user);
+		ps.setString(2, pass);
+		ps.executeUpdate();
+		out.println("<h3>Registration successfully</h3>");
+		
+	}else if("login".equals(action)) {
+		PreparedStatement ps=con.prepareStatement("select * from users where username=? and password=?");
+		ps.setString(1, user);
+		ps.setString(2, pass);
+        ResultSet rs=ps.executeQuery();
+        if(rs.next()) {
+        	out.println("<h3>login succesful</h3>");
+        	out.println("welcome"+user);
+        }else {
+        	out.println("<h3>Invalid Username or pasword</h3>");
+        }
+	}
+	
+}catch(Exception e) {
+	e.printStackTrace();
+}
+		}
+		public void destroy() {
+			try {
+				con.close();
+			}catch(Exception e) {
+				e.printStackTrace();
+			}
+	
+        }
+        
+		
+	}
+
+#Register.html
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Register</title>
+</head>
+<body>
+<h2>Registration</h2>
+<form action="userservlet" method="post">
+<input type="hidden" name="action" value="register">
+Username: 
+<input type="text" name="username"><br><br>
+Password:
+<input type="text" name="password"><br><br>
+<input type="submit" value="Register">
+</form>
+
+</body>
+</html>
+
+#Login.html
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Login</title>
+</head>
+<body>
+<h2>User Login</h2>
+<form action="userservlet" method="post">
+<input type="hidden" name="action" value="login">
+Username: 
+<input type="text" name="username"><br><br>
+Password:
+<input type="text" name="password"><br><br>
+<input type="submit" value="login">
+</form>
+
+</body>
+</html>
