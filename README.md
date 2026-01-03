@@ -21,4 +21,14 @@ o	Validate user in login
 •	destroy() → close connection
 •	Use PreparedStatement & ResultSet
 
+Database:
+CREATE DATABASE userdb;
+
+USE userdb;
+
+CREATE TABLE users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) UNIQUE,
+    password VARCHAR(50)
+);
 
